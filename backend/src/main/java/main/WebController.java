@@ -19,7 +19,7 @@ public class WebController {
         JSONObject newsObject = new JSONObject();
         JSONArray newsArray = new JSONArray();
 
-        Document bbc = Jsoup.connect("https://www.bbc.com/mundo").get();
+        Document bbc = Jsoup.connect("https://www.bbc.com/mundo").get(); //CAMBIAR POR https://www.bbc.com
         Elements newsHeadlines = bbc.select("h3.ea6by782");
         Elements newsPictures = bbc.select("div.ea6by784 div.bbc-sni631");
 

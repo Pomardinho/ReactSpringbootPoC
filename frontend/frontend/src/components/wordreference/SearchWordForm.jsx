@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { defineWord } from 'wordreference'
 import DisplayTranslations from './DisplayTranslations'
+import 'bootstrap/dist/css/bootstrap.min.css'
 
 function SearchWordForm() {
     document.title = "Wordreference"
@@ -8,21 +9,31 @@ function SearchWordForm() {
     const [language, setLanguage] = useState("Spanish")
     const [translations, setTranslations] = useState(null)
     const [submitted, setSubmitted] = useState(false)
+    const [wordData, setWordData] = useState(false)
 
-    const SearchWord = async (e) => {
-        e.preventDefault()
-        const result = await defineWord(word, `English-${language}`)
-        setTranslations(parseTranslations(result))
-        setSubmitted(true)
-    }
-
+    const SearchWord = async () => {
+        if (!word) return;
+    
+        try {
+            const result = await defineWord(word, `English-${language}`);
+            setWordData(result);
+            setTranslations(parseTranslations(result));
+        } catch (error) {
+            console.error('Error al buscar la palabra:', error);
+        }
+    };
+    
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        setSubmitted(true);
+    };
+    
     useEffect(() => {
         if (submitted) {
-            SearchWord()
+            SearchWord();
+            setSubmitted(false);
         }
-
-        setSubmitted(false)
-    }, [submitted])
+    }, [submitted]);
 
     const parseTranslations = (result) => {
         const parsedTranslations = []
@@ -51,7 +62,7 @@ function SearchWordForm() {
     return (
         <div class="container text-light">
             <h1>Search words in English and get the translation!</h1>
-            <form onSubmit={SearchWord}>
+            <form onSubmit={handleSubmit}>
                 <label>Translate:</label>
                 <input class="bg-black bg-opacity-25 text-light border-0 rounded mx-2 ps-2 focus-ring focus-ring-secondary" type="text" value={word} onChange={(e) => setWord(e.target.value)} placeholder="any word" required/>
                 <label>to:</label>
@@ -64,7 +75,8 @@ function SearchWordForm() {
                 <button class="btn btn-success mb-3" type="submit">Go!</button>
             </form>
 
-            {translations && (<DisplayTranslations translations={translations}/>)}
+            {/* {translations && (<DisplayTranslations translations={translations}/>)} */}
+            {wordData && (<DisplayTranslations data={wordData}/>)}
         </div>
     )
 }
