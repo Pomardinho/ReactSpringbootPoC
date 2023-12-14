@@ -9,9 +9,9 @@ function DisplayTranslations({ data }) {
 
     return (
         <div>
-            <div class="row align-items-center">
-                <h1 class="col-auto">{data.inputWord}</h1>
-                <button class="col-auto btn btn-secondary" onClick={() => handleAudioPlay(data.audioLinks[0])}>🔊</button>
+            <div className="row align-items-center">
+                <h1 className="col-auto">{data.inputWord}</h1>
+                <button className="col-auto btn btn-secondary" onClick={() => handleAudioPlay(data.audioLinks[0])}>🔊</button>
             </div><br/>
             
             {data.sections.map((section, index) => (
@@ -19,10 +19,10 @@ function DisplayTranslations({ data }) {
                     <h3>{section.title}</h3>
                     {section.translations && section.translations.map((translation, idx) => (
                         <div key={idx}>
-                            <p>{idx + 1}. <span class="text-primary">[{translation.meanings[0]?.pos}] </span> 
+                            <p>{idx + 1}. <span className="text-primary">[{translation.meanings[0]?.pos}] </span> 
                                 {translation.word.word} ({translation.definition})<br/>
                                 {translation.examples && translation.examples.map((example, i) => (
-                                    <span class="text-secondary">{example.phrase} <i>{example.translations}</i></span>
+                                    <span className="text-secondary">{example.phrase} <i>{example.translations}</i></span>
                                 ))}
                             </p>
                         </div>
