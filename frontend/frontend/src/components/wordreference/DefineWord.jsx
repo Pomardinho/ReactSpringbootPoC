@@ -1,16 +1,23 @@
 import React, { useState, useEffect } from 'react'
+import { useLocation } from 'react-router-dom';
 import { defineWord } from 'wordreference'
 import DisplayTranslations from './DisplayTranslations'
 import 'bootstrap/dist/css/bootstrap.min.css'
 
 function DefineWord({ word }) {
+    const location = useLocation()
     const [wordData, setWordData] = useState(false)
     const [translations, setTranslations] = useState(null)
     const [wordExists, setWordExists] = useState(false)
 
     useEffect(() => {
         const fetchData = async() => {
-            const result = await defineWord(word, `English-Spanish`);
+            var translationLanguage = "English-Spanish"
+            if (location.pathname == "/bild") translationLanguage = "German-Spanish"
+            
+            const result = await defineWord(word, translationLanguage)
+            console.log(result)
+
             if (result.sections && result.sections.length > 0) {
                 setWordExists(true)
                 setWordData(result)

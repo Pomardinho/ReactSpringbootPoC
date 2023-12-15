@@ -4,35 +4,50 @@ import SingleNew from './SingleNew'
 
 function BBC() {
     document.title = "BBC news"
-    const [news, setNews] = useState([]);
-    const [selectedNewIndex, setSelectedNewIndex] = useState(null);
-    
+    const [news, setNews] = useState([])
+    const [selectedNewIndex, setSelectedNewIndex] = useState(null)
+    const [isLoading, setIsLoading] = useState(true)
+
     useEffect(() => {
-        fetch("http://localhost:8080/news").then(res => res.json()).then(data => {
-            setNews(data.news)
-            console.log(data.news)
-        })
+        fetch("http://localhost:8080/bbc")
+            .then(res => res.json())
+            .then(data => {
+                setNews(data.news)
+                setIsLoading(false)
+                console.log(data.news)
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error)
+                setIsLoading(false)
+            })
     }, [])
 
     const displaySingleNew = (index) => {
-        setSelectedNewIndex(index);
-    };
+        setSelectedNewIndex(index)
+    }
 
     return (
         <div className="container text-light">
-            <h1>BBC news</h1>
-            {selectedNewIndex !== null ? (
-                <SingleNew title={news[selectedNewIndex].title} image={news[selectedNewIndex].image} paragraphs={news[selectedNewIndex].paragraphs}/>
+            <h1>BBC NEWS</h1>
+            <a href="https://www.bbc.com" target="_blank" className="text-decoration-none"><p className="text-secondary">https://www.bbc.com</p></a>
+            {isLoading ? (
+                <div className="spinner-border ms-auto text-primary" role="status" aria-hidden="true"></div>
             ) : (
-                <div className="row">
-                    {news.map((item, index) => (
-                        <div className="col-md-6 mb-3" key={index} onClick={() => displaySingleNew(index)}>
-                            <div className="bg-black bg-opacity-25 rounded p-2">
-                                <img className="img-fluid rounded" src={item.image} alt={item.title} />
-                                <p>{item.title}</p>
-                            </div>
+                <div>
+                    {selectedNewIndex !== null ? (
+                        <SingleNew title={news[selectedNewIndex].title} image={news[selectedNewIndex].image} paragraphs={news[selectedNewIndex].paragraphs}/>
+                    ) : (
+                        <div className="row">
+                            {news.map((item, index) => (
+                                <div className="col-md-6 mb-3" key={index} onClick={() => displaySingleNew(index)}>
+                                    <div className="bg-black bg-opacity-25 rounded p-2">
+                                        <img className="img-fluid rounded" src={item.image} alt={item.title} />
+                                        <p>{item.title}</p>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
-                    ))}
+                    )}
                 </div>
             )}
         </div>
