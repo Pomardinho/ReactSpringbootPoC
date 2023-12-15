@@ -14,36 +14,73 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @CrossOrigin(origins = "http://localhost:5173")
 public class WebController {
-    @GetMapping("/news")
+    @GetMapping("/bbc")
     public String news() throws IOException {
         JSONObject newsObject = new JSONObject();
         JSONArray newsArray = new JSONArray();
 
-        Document bbc = Jsoup.connect("https://www.bbc.com/mundo").get(); //CAMBIAR POR https://www.bbc.com
-        Elements newsHeadlines = bbc.select("h3.ea6by782");
-        Elements newsPictures = bbc.select("div.ea6by784 div.bbc-sni631");
+        Document bbc = Jsoup.connect("https://www.bbc.com").get();
+        Elements newsUrl = bbc.select("div.module__content li.media-list__item");
 
-        for (int i = 0; i < newsHeadlines.size(); i++) {
-            Element headline = newsHeadlines.get(i);
-            Element pictures = newsPictures.get(i);
+        for (Element singleNew : newsUrl) {
+            Element titleElement = singleNew.selectFirst("h3.media__title a");
+            String url = (titleElement != null) ? titleElement.absUrl("href") : "";
 
-            Element link = headline.selectFirst("a");
-            String title = headline.text();
-            String url = link.absUrl("href");
-
-            Element source = pictures.selectFirst("source");
-            String[] picturesSrc = source.attr("srcset").split("\\s+");
-            String picture = picturesSrc[picturesSrc.length - 2];
-            
-            JSONObject singleNew = new JSONObject();
-            singleNew.put("title", title);
-            singleNew.put("url", url);
-            singleNew.put("picture", picture);
-            
-            newsArray.put(singleNew);
+            if (!url.isEmpty()) {
+                JSONObject singleNewObject = processSingleNews(url);
+                newsArray.put(singleNewObject);
+            }
         }
         
         newsObject.put("news", newsArray);
-        return(newsObject.toString());    
+        return newsObject.toString();
+    }
+
+    private JSONObject processSingleNews(String url) throws IOException {
+        JSONObject singleNewObject = new JSONObject();
+        Document newsPage = Jsoup.connect(url).get();
+    
+        String title = extractTitle(newsPage);
+    
+        Element imageElement = newsPage.selectFirst("img.ssrcss-evoj7m-Image");
+        String imageUrl = (imageElement != null) ? imageElement.attr("src") : "";
+        
+        singleNewObject.put("title", title);
+        singleNewObject.put("url", url);
+        singleNewObject.put("image", imageUrl);
+
+        JSONArray paragraphsArray = extractParagraphs(newsPage);
+        singleNewObject.put("paragraphs", paragraphsArray);
+
+        return singleNewObject;
+    }
+
+    private String extractTitle(Document doc) {
+        String[] selectors = {
+            "h1.ssrcss-15xko80-StyledHeading",
+            "h1.ssrcss-nsdtmh-StyledHeading e10rt3ze0",
+            "h1.gs-c-promo-heading__title",
+            "h1.article-headline__text"
+        };
+    
+        for (String selector : selectors) {
+            Element titleElement = doc.selectFirst(selector);
+            if (titleElement != null) {
+                return titleElement.text();
+            }
+        }
+    
+        return "";
+    }
+
+    private JSONArray extractParagraphs(Document doc) {
+        Elements paragraphs = doc.select("p.ssrcss-1q0x1qg-Paragraph");
+        JSONArray paragraphsArray = new JSONArray();
+
+        for (Element paragraph : paragraphs) {
+            paragraphsArray.put(paragraph.text());
+        }
+    
+        return paragraphsArray;
     }
 }
