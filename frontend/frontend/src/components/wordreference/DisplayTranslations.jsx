@@ -7,6 +7,10 @@ function DisplayTranslations({ data }) {
         audio.play();
     };
 
+    const addToDictionary = (word) => {
+        console.log(`${word} added`)
+    }
+
     return (
         <div>
             <div className="row align-items-center">
@@ -14,6 +18,9 @@ function DisplayTranslations({ data }) {
                 {data.audioLinks && data.audioLinks.length > 0 && (
                     <button className="col-auto btn btn-secondary" onClick={() => handleAudioPlay(data.audioLinks[0])}>🔊</button>
                 )}
+                <span className="col text-end">
+                    <button className="btn btn-primary" onClick={() => addToDictionary(data.inputWord)}>Add to dictionary</button>
+                </span>
             </div><br/>
             
             {data.sections.map((section, index) => (
